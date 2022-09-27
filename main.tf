@@ -19,7 +19,6 @@ variable "avail_zone" {}
 variable "env_prefix" {}
 variable "instance_type" {}
 variable "public_key_location" {}
-variable "entrypoint_file" {}
 
 resource "aws_vpc" "myapp-vpc" {
     cidr_block = var.vpc_cidr_block
@@ -135,7 +134,7 @@ resource "aws_instance" "myapp-server" {
     #instead of using key pair generate from aws, we would rather use our own public key to insert into EC2 instance.
     //key_name = "myapp-server-key-pair"
     key_name = aws_key_pair.ssh-key.key_name
-    user_data = file(var.entrypoint_file)
+    user_data = file("entrypoint.sh")
     /*
     user_data = <<EOF
                 #!/bin/bash
