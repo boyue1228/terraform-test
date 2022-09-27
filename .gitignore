@@ -4,3 +4,4 @@
 #local state file
 *.tfstate
 *.tfstate.*
+.gitignore
