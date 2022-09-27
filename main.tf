@@ -1,3 +1,13 @@
+/* This example shows 
+- create custom vpc
+- create custom subnet
+- create route table and igw
+- provision ec2 instance with ami
+- deploy nginx docker container 
+- security group (firewall)
+
+*/
+
 provider "aws" {
     region =  "us-east-1"
 }
@@ -9,6 +19,7 @@ variable "avail_zone" {}
 variable "env_prefix" {}
 variable "instance_type" {}
 variable "public_key_location" {}
+variable "entrypoint_file" {}
 
 resource "aws_vpc" "myapp-vpc" {
     cidr_block = var.vpc_cidr_block
@@ -74,7 +85,7 @@ resource "aws_security_group" "myapp-sg" {
         protocol         = "tcp"
         cidr_blocks      = ["0.0.0.0/0"]
     }
-     ingress {
+    ingress {
         description      = "TLS from myapp-VPC"
         from_port        = 8080
         to_port          = 8080
@@ -121,8 +132,20 @@ resource "aws_instance" "myapp-server" {
     vpc_security_group_ids = [aws_security_group.myapp-sg.id]
     availability_zone = var.avail_zone
     associate_public_ip_address = true
+    #instead of using key pair generate from aws, we would rather use our own public key to insert into EC2 instance.
     //key_name = "myapp-server-key-pair"
     key_name = aws_key_pair.ssh-key.key_name
+    user_data = file(var.entrypoint_file)
+    /*
+    user_data = <<EOF
+                #!/bin/bash
+                    sudo yum update -y 
+                    sudo yum install docker -y 
+                    sudo systemctl start docker
+                    sudo usermod -aG docker ec2-user
+                    docker run -p 8080:80 nginx
+                EOF 
+    */
 
     tags = {
         Name = "${var.env_prefix}-app-server"
