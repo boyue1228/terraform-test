@@ -3,6 +3,7 @@ resource "aws_security_group" "myapp-sg" {
     description = "my security group"
     #vpc_id = aws_vpc.myapp-vpc.id
     vpc_id = var.vpc_id
+    name = "myapp-sg"
 
     ingress {
         description      = "TLS from myapp-VPC"
